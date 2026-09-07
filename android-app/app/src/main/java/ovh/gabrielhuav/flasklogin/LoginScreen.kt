@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
@@ -19,11 +20,10 @@ fun LoginScreen(
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var uiState by remember { mutableStateOf<UiState>(UiState.Idle) }
+    val scope = rememberCoroutineScope()
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
+        modifier = Modifier.fillMaxSize().padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -54,13 +54,10 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            when (uiState) {
+            when (val state = uiState) {
                 is UiState.Loading -> CircularProgressIndicator()
                 is UiState.Error -> {
-                    Text(
-                        text = (uiState as UiState.Error).message,
-                        color = MaterialTheme.colorScheme.error
-                    )
+                    Text(state.message, color = MaterialTheme.colorScheme.error)
                     Spacer(modifier = Modifier.height(8.dp))
                 }
                 else -> {}
@@ -68,12 +65,24 @@ fun LoginScreen(
 
             Button(
                 onClick = {
-                    // Aquí se conectará la llamada real a la API más adelante
                     if (username.isBlank() || password.isBlank()) {
                         uiState = UiState.Error("Completa usuario y contraseña")
-                    } else {
-                        uiState = UiState.Success
-                        onLoginSuccess()
+                        return@Button
+                    }
+                    uiState = UiState.Loading
+                    scope.launch {
+                        try {
+                            val response = RetrofitClient.api.login(LoginRequest(username, password))
+                            if (response.isSuccessful && response.body()?.access_token != null) {
+                                SessionManager.token = response.body()!!.access_token
+                                uiState = UiState.Success
+                                onLoginSuccess()
+                            } else {
+                                uiState = UiState.Error("Credenciales inválidas")
+                            }
+                        } catch (e: Exception) {
+                            uiState = UiState.Error("Error de conexión: ${e.message}")
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -82,7 +91,6 @@ fun LoginScreen(
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-
             TextButton(onClick = onGoToRegister) {
                 Text("¿No tienes cuenta? Regístrate")
             }
