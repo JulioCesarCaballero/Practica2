@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import ovh.gabrielhuav.flasklogin.ui.theme.FlaskLoginTheme
 
@@ -60,14 +59,29 @@ fun AppRoot() {
                                 navController.navigate(Screen.Register.route)
                             }
                         )
-                        DropdownMenuItem(
-                            text = { Text("Operaciones CRUD") },
-                            enabled = isLoggedIn,
-                            onClick = {
-                                menuExpanded = false
-                                navController.navigate(Screen.Crud.route)
-                            }
-                        )
+                        // Esta opción SOLO aparece si el usuario ya inició sesión
+                        if (isLoggedIn) {
+                            DropdownMenuItem(
+                                text = { Text("Operaciones CRUD") },
+                                onClick = {
+                                    menuExpanded = false
+                                    navController.navigate(Screen.Crud.route)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Cerrar Sesión") },
+                                onClick = {
+                                    menuExpanded = false
+                                    isLoggedIn = false
+                                    SessionManager.clear()
+                                    navController.navigate(Screen.Login.route) {
+                                        // Limpia el historial de navegación para que no
+                                        // pueda regresar al CRUD con el botón "atrás"
+                                        popUpTo(0)
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             )
