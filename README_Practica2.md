@@ -154,7 +154,7 @@ Durante las pruebas con un dispositivo físico, la red WiFi de la escuela presen
 #### Capturas de pantalla
 
 **1. Registro de usuario**
-![Registro](docs/Registro_registro.png)
+![Registro](docs/Registro_usuario.png)
 
 **2. Inicio de sesión**
 ![Login](docs/Inicio_sesión.png)
