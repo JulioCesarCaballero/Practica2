@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
             FlaskLoginTheme {
                 AppRoot()
             }
-        }
+         }
     }
 }
 
