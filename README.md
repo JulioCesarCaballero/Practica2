@@ -176,6 +176,67 @@ Durante las pruebas con un dispositivo físico, la red WiFi de la escuela presen
 
 ---
 
+## Instalación y ejecucción
+
+ **Requisitos previos**
+
+- Docker Desktop instalado y en ejecución.
+- Android Studio instalado (versión reciente, compatible con Kotlin y Jetpack Compose).
+- Git instalado.
+
+**1. Clonar el repositorio**
+
+git clone https://github.com/JulioCesarCaballero/Practica2.git
+cd Practica2
+
+**2. Configurar y levantar el backend**
+
+cd backend
+
+Crea un archivo llamado .env en esta carpeta (no viene incluido en el repositorio por seguridad) con el siguiente contenido:
+
+JWT_SECRET_KEY=escribe-aqui-cualquier-clave
+
+Puedes basarte en el archivo .env.example incluido, que muestra el nombre exacto de la variable requerida, sin su valor real.
+
+Levanta el servicio:
+
+docker compose up --build
+
+Espera a ver en la terminal un mensaje similar a:
+* Running on http://0.0.0.0:5000
+
+El backend queda disponible en http://localhost:5000. Puedes verificarlo abriendo esa dirección en el navegador; debe responder {"message": "API Funcionando"}.
+
+Para detener el servicio más adelante:
+docker compose down
+
+**3. Abrir y configurar la aplicación móvil**
+
+1. Abre Android Studio.
+2. Selecciona Open y elige la carpeta Practica2/android-app.
+3. Espera a que Android Studio sincronice Gradle automáticamente (puede tardar varios minutos la primera vez).
+4. Abre el archivo:
+   app/src/main/java/ovh/gabrielhuav/flasklogin/RetrofitClient.kt
+5. Configura la constante BASE_URL según cómo vayas a ejecutar la app:
+
+   - Emulador de Android Studio: http://10.0.2.2:5000/
+   - Dispositivo físico en la misma red WiFi que la PC: http://IP_LOCAL_DE_TU_PC:5000/
+     (obtén tu IP con el comando ipconfig en Windows, o ifconfig / ip a en Mac/Linux)
+
+   Nota: si se usa un dispositivo físico y la red WiFi tiene aislamiento de clientes (común en redes escolares o públicas), el dispositivo no podrá alcanzar la PC aunque estén en la misma red, incluso con la IP correcta. En ese caso, activa un hotspot personal desde el celular, conecta la laptop a ese hotspot, y usa la nueva IP local que se asigne.
+
+6. Con el backend ya corriendo (paso 2), ejecuta la app en Android Studio con el botón Run, eligiendo el emulador o tu dispositivo físico conectado.
+
+**4. Probar el flujo completo**
+
+1. Regístrate con un usuario nuevo desde la pantalla de Registro.
+2. Inicia sesión con ese usuario.
+3. Crea, edita y elimina tareas desde la pantalla de Operaciones CRUD.
+4. Cierra sesión desde el menú superior.
+
+Si algún paso no funciona siguiendo exactamente, revisa primero que Docker Desktop esté abierto y el contenedor corriendo, y que la IP configurada en RetrofitClient.kt sea la correcta para tu escenario (emulador vs. dispositivo físico).
+
 ## Conclusiones
 
 El desarrollo de esta práctica permitió comprender de forma práctica cómo se conectan tres capas independientes de una aplicación real: la base de datos, el backend REST dockerizado, y el cliente móvil. Entre los principales retos enfrentados estuvieron:
